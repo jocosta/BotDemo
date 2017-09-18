@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotNetSpDemo", "BotNetSpDemo\BotNetSpDemo.csproj", "{9E41C589-8AC9-4628-B2A0-1EAF33D1DDA9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotNetSpDemo.WebCrawler", "BotNetSpDemo.WebCrawler\BotNetSpDemo.WebCrawler.csproj", "{3CA8BF51-531D-4BD3-8015-1D8661EBB3FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{358FC67B-176D-4BDE-A061-2AF85FBA7E0E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9E41C589-8AC9-4628-B2A0-1EAF33D1DDA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E41C589-8AC9-4628-B2A0-1EAF33D1DDA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E41C589-8AC9-4628-B2A0-1EAF33D1DDA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E41C589-8AC9-4628-B2A0-1EAF33D1DDA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CA8BF51-531D-4BD3-8015-1D8661EBB3FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CA8BF51-531D-4BD3-8015-1D8661EBB3FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CA8BF51-531D-4BD3-8015-1D8661EBB3FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CA8BF51-531D-4BD3-8015-1D8661EBB3FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{358FC67B-176D-4BDE-A061-2AF85FBA7E0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{358FC67B-176D-4BDE-A061-2AF85FBA7E0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{358FC67B-176D-4BDE-A061-2AF85FBA7E0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{358FC67B-176D-4BDE-A061-2AF85FBA7E0E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
