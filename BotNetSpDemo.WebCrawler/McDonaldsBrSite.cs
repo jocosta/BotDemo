@@ -8,38 +8,116 @@ namespace BotNetSpDemo.WebCrawler
     {
         private const string SITE_URL = @"http://www.mcdonalds.com.br";
 
-        public IEnumerable<ItemMenu> GetMenu()
+        public List<ItemMenu> GetMenu()
         {
+            List<ItemMenu> list = new List<ItemMenu>();
 
+            list.AddRange(GetChickenAndFishMenu());
+            list.AddRange(GetMeatMenu());
 
-            return null;
+            return list;
         }
 
-        public List<ItemMenu> GetMeatMenu()
+
+        internal List<ItemMenu> GetChickenAndFishMenu()
+        {                                                
+            List<ItemMenu> list = new List<ItemMenu>();
+
+            string Url = $"{SITE_URL}/cardapio/sanduiches-de-frango-e-peixe";
+            HtmlWeb web = new HtmlWeb();
+            HtmlDocument doc = web.Load(Url);
+
+            var nodes = doc.DocumentNode.SelectNodes("//main/div[2]/div/div");
+
+            foreach (var node in nodes)
+            {
+                var item = node.SelectSingleNode("a");
+                var tagImg = item.SelectSingleNode("div[1]/div[1]/img[1]").Attributes["src"].Value;
+                var tagName = item.SelectSingleNode("div[2]").InnerText;
+
+                list.Add(new ItemMenu
+                {
+                    ItemName = tagName,
+                    ImgUrl = tagImg
+                });
+            }
+
+            return list;
+        }
+
+        internal List<ItemMenu> GetMeatMenu()
         {
             List<ItemMenu> list = new List<ItemMenu>();
 
             string Url = $"{SITE_URL}/cardapio/sanduiches-de-carne";
             HtmlWeb web = new HtmlWeb();
             HtmlDocument doc = web.Load(Url);
-            //var nodes = doc.DocumentNode.ChildNodes[2].ChildNodes[3].SelectNodes("//div[@id=\"list-details-v1\"]/div/div");
 
-           var nodes = doc.DocumentNode.SelectNodes("//main/div[2]/div/div");
+            var nodes = doc.DocumentNode.SelectNodes("//main/div[2]/div/div");
 
             foreach (var node in nodes)
             {
-
-                var item = node.SelectSingleNode("a");
-
+                var item = node.SelectSingleNode("a"); 
                 var tagImg = item.SelectSingleNode("div[1]/div[1]/img[1]").Attributes["src"].Value;
                 var tagName = item.SelectSingleNode("div[2]").InnerText;
 
                 list.Add(new ItemMenu
                 {
-                    SandwicheName = tagName,
+                    ItemName = tagName,
                     ImgUrl = tagImg
                 });
+            }
 
+            return list;
+        }
+
+        public List<ItemMenu> GetGarnish()
+        {
+            List<ItemMenu> list = new List<ItemMenu>();
+
+            string Url = $"{SITE_URL}/cardapio/acompanhamentos";
+            HtmlWeb web = new HtmlWeb();
+            HtmlDocument doc = web.Load(Url);
+
+            var nodes = doc.DocumentNode.SelectNodes("//main/div[2]/div/div");
+
+            foreach (var node in nodes)
+            {
+                var item = node.SelectSingleNode("a");
+                var tagImg = item.SelectSingleNode("div[1]/div[1]/img[1]").Attributes["src"].Value;
+                var tagName = item.SelectSingleNode("div[2]").InnerText;
+
+                list.Add(new ItemMenu
+                {
+                    ItemName = tagName,
+                    ImgUrl = tagImg
+                });
+            }
+
+            return list;
+        }
+
+        public List<ItemMenu> GetDrink()
+        {
+            List<ItemMenu> list = new List<ItemMenu>();
+
+            string Url = $"{SITE_URL}/cardapio/bebidas";
+            HtmlWeb web = new HtmlWeb();
+            HtmlDocument doc = web.Load(Url);
+
+            var nodes = doc.DocumentNode.SelectNodes("//main/div[2]/div/div");
+
+            foreach (var node in nodes)
+            {
+                var item = node.SelectSingleNode("a");
+                var tagImg = item.SelectSingleNode("div[1]/div[1]/img[1]").Attributes["src"].Value;
+                var tagName = item.SelectSingleNode("div[2]").InnerText;
+
+                list.Add(new ItemMenu
+                {
+                    ItemName = tagName,
+                    ImgUrl = tagImg
+                });
             }
 
             return list;
@@ -50,7 +128,7 @@ namespace BotNetSpDemo.WebCrawler
     [Serializable]
     public class ItemMenu
     {
-        public string SandwicheName { get; set; }
+        public string ItemName { get; set; }
         public string ImgUrl { get; set; }
     }
 }

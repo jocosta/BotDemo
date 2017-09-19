@@ -6,31 +6,31 @@ using Microsoft.Bot.Builder.FormFlow;
 using Microsoft.Bot.Builder.FormFlow.Advanced;
 using BotNetSpDemo.WebCrawler;
 using System.Threading.Tasks;
+using Microsoft.Bot.Connector;
 
 namespace BotNetSpDemo
 {
-    public enum Sandwiches
-    {
-
-    }
-
-    public enum Drinks
-    {
-
-    }
-
     public enum PaymentType
     {
-
+        Credito,
+        Debito,
+        ValeRefeicao,
+        Dinheiro
     }
 
     [Serializable]
     public class PedidoForm
     {
+        [Prompt("Qual o seu nome?")]
         public string Name { get; set; }
         public string Sandwiche { get; set; }
-        public Drinks Drink { get; set; }
+        public string Garnish { get; set; }
+        public string Drink { get; set; }
+        [Prompt("Batata grande por mais R$1,00? {||}")]
+        public bool AddShipsFor1Real { get; set; }
+        [Prompt("Qual a forma de pagamento: {||}")]
         public PaymentType PaymentType { get; set; }
+        [Prompt("Pedido para viagem? {||}")]
         public bool IsVoyage { get; set; }
 
         public static IForm<PedidoForm> BuildForm()
@@ -38,34 +38,113 @@ namespace BotNetSpDemo
 
             var builder = new FormBuilder<PedidoForm>()
                 .Message("Bem-vindo ao bot do MC! \U0001F609")
+                .Field(nameof(Name))
                 .Field(new FieldReflector<PedidoForm>(nameof(Sandwiche))
-                            .SetType(null)
-                            .SetDefine((state, field) =>
-                            {
-                                var crawler = new McDonaldsBrSite();
-                                var dados = crawler.GetMeatMenu().Distinct();
+                .SetType(null)
+                .SetActive((state) =>
+                {
+                    return string.IsNullOrEmpty(state.Sandwiche);
+                })
+                .SetPrompt(new PromptAttribute("Por favor, selecione o sanduiche: {||}")
+                {
+                    ChoiceStyle = ChoiceStyleOptions.Carousel
 
-                                foreach (var prod in dados)
-                                    field
-                                        .SetAllowsMultiple(true)
-                                        .SetPrompt(new PromptAttribute("Selecione o seu sanduiche {||}"))
-                                        .AddDescription(prod, prod.SandwicheName, prod.ImgUrl)
-                                        .AddTerms(prod, prod.SandwicheName);
+                })
+                .SetDefine((state, field) =>
+                {
+                    var crawler = new McDonaldsBrSite();
+                    var result = crawler.GetMenu().Distinct();
 
-                                return Task.FromResult(true);
-                            }))
-                 .AddRemainingFields();
-              
+                    foreach (var item in result)
+                    {
+                        field
+                        .AddDescription(item.ItemName, item.ItemName, item.ImgUrl)
+                        .AddTerms(item.ItemName, item.ItemName);
+                    }
 
-            builder.Confirm("Legal, finalizamos o preenchimento do seu cadastro. Pra finalizar, confirme os dados abaixo: {*} {||}");
-            //builder.OnCompletion(async (context, cadastro) =>
-            //{
+                    return Task.FromResult(true);
+                }))
+                .Field(new FieldReflector<PedidoForm>(nameof(Garnish))
+                .SetType(null)
+                .SetActive((state) =>
+                {
+                    return string.IsNullOrEmpty(state.Garnish);
+                })
+                .SetPrompt(new PromptAttribute("Por favor, selecione o acompanhamento: {||}")
+                {
+                    ChoiceStyle = ChoiceStyleOptions.Carousel
+
+                })
+                .SetDefine((state, field) =>
+                {
+                    var crawler = new McDonaldsBrSite();
+                    var result = crawler.GetGarnish().Distinct();
+
+                    foreach (var item in result)
+                    {
+                        field
+                        .AddDescription(item.ItemName, item.ItemName, item.ImgUrl)
+                        .AddTerms(item.ItemName, item.ItemName);
+                    }
+
+                    return Task.FromResult(true);
+                }))
+                .Field(new FieldReflector<PedidoForm>(nameof(Drink))
+                .SetType(null)
+                .SetActive((state) =>
+                {
+                    return string.IsNullOrEmpty(state.Drink);
+                })
+                .SetPrompt(new PromptAttribute("Selecione a sua bebida {||}")
+                {
+                    ChoiceStyle = ChoiceStyleOptions.Carousel
+
+                })
+                .SetDefine((state, field) =>
+                {
+                    var crawler = new McDonaldsBrSite();
+                    var result = crawler.GetDrink().Distinct();
+
+                    foreach (var item in result)
+                    {
+                        field
+                        .AddDescription(item.ItemName, item.ItemName, item.ImgUrl)
+                        .AddTerms(item.ItemName, item.ItemName);
+                    }
+
+                    return Task.FromResult(true);
+                }))
+                .AddRemainingFields();
+                                         
 
 
+            builder.Confirm("Legal, finalizamos o preenchimento do seu cadastro. Pra finalizar, confirma os dados abaixo: {*} {||}");
+            builder.OnCompletion(async (context, pedido) =>
+            {
+                TrelloHelper.PublishIntoTrello(pedido.Name,
+                                               pedido.Sandwiche,
+                                               pedido.Drink,
+                                               pedido.Garnish,
+                                               pedido.AddShipsFor1Real.ToString(),
+                                               pedido.IsVoyage.ToString(),
+                                               pedido.PaymentType.ToString());
 
-            //                 //activity.Text = $"{cadastro.NomeCompleto}, seu cadastro foi realizado com sucesso. Em instantes chegará no email  {cadastro.Email} um novo e-mail, fique ligado!";
-            //    await context.PostAsync(null);
-            //});   //IMessageActivity activity = context.MakeMessage();
+                var userAccount = new ChannelAccount(name: context.Activity.From.Name, id: context.Activity.From.Id);
+                var botAccount = new ChannelAccount(name: context.Activity.Recipient.Name, id: context.Activity.Recipient.Id);
+                var connector = new ConnectorClient(new Uri(context.Activity.ServiceUrl));
+                var conversationId = await connector.Conversations.CreateDirectConversationAsync(botAccount, userAccount);
+
+
+                
+                IMessageActivity message = Activity.CreateMessageActivity();
+                message.From = botAccount;
+                message.Recipient = userAccount;
+                message.Conversation = new ConversationAccount(id: conversationId.Id);
+                message.Text = $"{pedido.Name}, seu pedido foi realizado com sucesso. Assim que estiver pronto te aviso, fique ligado!";
+                message.Locale = "en-Us";
+                await context.PostAsync(message);
+
+            });   //IMessageActivity activity = context.MakeMessage();
 
 
             var form = builder.Build();
