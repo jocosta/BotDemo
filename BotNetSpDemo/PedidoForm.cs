@@ -45,7 +45,7 @@ namespace BotNetSpDemo
                 {
                     return string.IsNullOrEmpty(state.Sandwiche);
                 })
-                .SetPrompt(new PromptAttribute("Por favor, selecione o sanduiche: {||}")
+                .SetPrompt(new PromptAttribute("Por favor, selecione o sanduíche: {||}")
                 {
                     ChoiceStyle = ChoiceStyleOptions.Carousel
 
@@ -118,7 +118,7 @@ namespace BotNetSpDemo
                                          
 
 
-            builder.Confirm("Legal, finalizamos o preenchimento do seu cadastro. Pra finalizar, confirma os dados abaixo: {*} {||}");
+            builder.Confirm("Legal, finalizamos o preenchimento do seu pedido. Pra finalizar, você confirma os dados abaixo? {*} {||}");
             builder.OnCompletion(async (context, pedido) =>
             {
                 TrelloHelper.PublishIntoTrello(pedido.Name,
@@ -141,7 +141,7 @@ namespace BotNetSpDemo
                 message.Recipient = userAccount;
                 message.Conversation = new ConversationAccount(id: conversationId.Id);
                 message.Text = $"{pedido.Name}, seu pedido foi realizado com sucesso. Assim que estiver pronto te aviso, fique ligado!";
-                message.Locale = "en-Us";
+                message.Locale = "pt-BR";
                 await context.PostAsync(message);
 
             });   //IMessageActivity activity = context.MakeMessage();
